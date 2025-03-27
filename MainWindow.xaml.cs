@@ -20,8 +20,9 @@ public partial class MainWindow : Window
     private float _mem1 = 0;
     private MEMINDEX _memPtr = MEMINDEX.MEM1; // 0 is mem0, 1 is mem1
     private bool _inputClosedSwitch;
-
     private CALCULATION_OPERATOR _switchedOperator = CALCULATION_OPERATOR.EMPTY;
+    private string _monitorStr;
+    private string _exprStr;
 
     public MainWindow()
     {
@@ -98,6 +99,12 @@ public partial class MainWindow : Window
             operatedNum += number;
         }
         WriteToMemory(operatedNum);
+        if(_memPtr == MEMINDEX.MEM1)
+        {
+            UpdateExprStringEmpty();
+        }
+
+        UpdateMonitorString(operatedNum.ToString());
         Log("INPUT");
     }
 
@@ -105,8 +112,9 @@ public partial class MainWindow : Window
     {
         _switchedOperator = op;
         SetPointerTo(MEMINDEX.MEM0);
-        Log("SWITCH");
         _inputClosedSwitch = true;
+        UpdateExprString(_mem1.ToString(), String.Empty, false);
+        Log("SWITCH");
     }
 
 
@@ -114,6 +122,7 @@ public partial class MainWindow : Window
     {
 
         SetPointerTo(MEMINDEX.MEM1);
+        float tmp = _mem1;
         switch(_switchedOperator)
         {
             case CALCULATION_OPERATOR.ADD:
@@ -134,7 +143,46 @@ public partial class MainWindow : Window
                 break;
         }
         _inputClosedSwitch = true;
-        Log("CALCED");
+        UpdateMonitorString(_mem1.ToString());
+        UpdateExprString(tmp.ToString(), _mem0.ToString(), true);
+        Log("CALC");
+
+    }
+    
+    private void UpdateExprStringEmpty()
+    {
+        _exprStr = String.Empty;
+    }
+    private void UpdateExprString(string op1, string op0, bool isFinal)
+    {
+        string calculatorExpr = isFinal ? "=" : " ";
+        _exprStr = op1 + GetOpString() + op0.ToString() + calculatorExpr;
+    }
+    private void UpdateMonitorString(string value)
+    {
+        _monitorStr = value;
+    }
+
+    private string GetOpString()
+    {
+       switch(_switchedOperator)
+       {
+           case CALCULATION_OPERATOR.ADD:
+               return "+";
+               break;
+           case CALCULATION_OPERATOR.REMOVE:
+               return "-";
+               break;
+           case CALCULATION_OPERATOR.MULTIPLY:
+               return "*";
+               break;
+           case CALCULATION_OPERATOR.DIVIDE:
+               return "/";
+               break;
+           default:
+               return "";
+               break;
+       }
     }
 
     private void WriteToMemory(float number)
@@ -149,6 +197,7 @@ public partial class MainWindow : Window
                 break;
         }
     }
+
     private float GetFromMemory()
     {
         switch(_memPtr)
@@ -169,13 +218,13 @@ public partial class MainWindow : Window
 
     private void LogInit()
     {
-        Console.WriteLine("HEADER\tOP\tMEM0\tMEM1\tPTR");
+        Console.WriteLine("HEADER\tOP\tMEM0\tMEM1\tPTR\tEXPR\tMONITOR");
     }
 
     private void Log(string header)
     {
-        Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", 
-                    header, _switchedOperator, _mem0, _mem1, _memPtr);
+        Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", 
+                    header, _switchedOperator, _mem0, _mem1, _memPtr, _exprStr, _monitorStr);
     }
 }
 

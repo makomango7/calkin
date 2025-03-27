@@ -16,13 +16,17 @@ namespace calkin;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private float _storedNumber;
-    private float _input = 0;
-    private CALCULATION_OPERATOR _switchedOperator; 
+    private float _mem0 = 0;
+    private float _mem1 = 0;
+    private MEMINDEX _memPtr = MEMINDEX.MEM1; // 0 is mem0, 1 is mem1
+    private bool _inputClosedSwitch;
+
+    private CALCULATION_OPERATOR _switchedOperator = CALCULATION_OPERATOR.EMPTY;
 
     public MainWindow()
     {
         InitializeComponent();
+        LogInit();
     }
 
     private void ButtonPressed(object sender, RoutedEventArgs e)
@@ -80,43 +84,100 @@ public partial class MainWindow : Window
         }
     }
 
-    private void EvalNumber(int number)
+    private void EvalNumber(float number)
     {
-        _input *= 10;
-        _input += number;
-        System.Console.WriteLine("Input is: " + _input);
+        float operatedNum = GetFromMemory();
+        if(_inputClosedSwitch)
+        {
+            operatedNum = number;
+            _inputClosedSwitch = false;
+        }
+        else
+        {
+            operatedNum *= 10;
+            operatedNum += number;
+        }
+        WriteToMemory(operatedNum);
+        Log("INPUT");
     }
 
     private void SwitchOperator(CALCULATION_OPERATOR op)
     {
         _switchedOperator = op;
-        _storedNumber = _input;
-        _input = 0;
-        Console.WriteLine("SWITCHING in: {0}, op: {1}, mem: {2}", _input, _switchedOperator, _storedNumber);
+        SetPointerTo(MEMINDEX.MEM0);
+        Log("SWITCH");
+        _inputClosedSwitch = true;
     }
+
 
     private void PerformCalculation()
     {
-        Console.WriteLine("CALCULATE in: {0}, op: {1}, mem: {2}", _input, _switchedOperator, _storedNumber);
+
+        Log("CALC");
+        SetPointerTo(MEMINDEX.MEM1);
+
         switch(_switchedOperator)
         {
             case CALCULATION_OPERATOR.ADD:
-                _storedNumber += _input;
+                _mem1 += _mem0;
                 break;
             case CALCULATION_OPERATOR.REMOVE:
-                _storedNumber -= _input;
+                _mem1 -= _mem0;
                 break;
             case CALCULATION_OPERATOR.MULTIPLY:
-                _storedNumber *= _input;
+                _mem1 *= _mem0;
                 break;
             case CALCULATION_OPERATOR.DIVIDE:
-                _storedNumber /= _input;
+                _mem1 /= _mem0;
+                break;
+            case CALCULATION_OPERATOR.EMPTY:
                 break;
             default:
                 break;
         }
-        // _input = 0;
-        Console.WriteLine("Stored number {0}", _storedNumber);
+        _inputClosedSwitch = true;
+        Log("CALCED");
+    }
+
+    private void WriteToMemory(float number)
+    {
+        switch(_memPtr)
+        {
+            case MEMINDEX.MEM0:
+                _mem0 = number;
+                break;
+            case MEMINDEX.MEM1:
+                _mem1 = number;
+                break;
+        }
+    }
+    private float GetFromMemory()
+    {
+        switch(_memPtr)
+        {
+            case MEMINDEX.MEM0:
+                return _mem0;
+            case MEMINDEX.MEM1:
+                return _mem1;
+            default:
+                return 0;
+        }
+    }
+
+    private void SetPointerTo(MEMINDEX mem)
+    {
+       _memPtr = mem; 
+    }
+
+    private void LogInit()
+    {
+        Console.WriteLine("HEADER\tOP\tMEM0\tMEM1\tPTR");
+    }
+
+    private void Log(string header)
+    {
+        Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", 
+                    header, _switchedOperator, _mem0, _mem1, _memPtr);
     }
 }
 
@@ -127,4 +188,10 @@ public enum  CALCULATION_OPERATOR
     MULTIPLY,
     DIVIDE,
     EMPTY 
+}
+
+public enum MEMINDEX
+{
+    MEM0 = 0,
+    MEM1 = 1
 }

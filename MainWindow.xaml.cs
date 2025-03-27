@@ -16,19 +16,12 @@ namespace calkin;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private float _mem0 = 0;
-    private float _mem1 = 0;
-    private MEMINDEX _memPtr = MEMINDEX.MEM1; // 0 is mem0, 1 is mem1
-    private bool _inputClosedSwitch;
-    private CALCULATION_OPERATOR _switchedOperator = CALCULATION_OPERATOR.EMPTY;
-    private string _monitorStr;
-    private string _exprStr;
-
+    private Calculator _calc;
     public MainWindow()
     {
         InitializeComponent();
-        LogInit();
-    }
+        _calc = new Calculator();
+    } 
 
     private void ButtonPressed(object sender, RoutedEventArgs e)
     {
@@ -38,54 +31,72 @@ public partial class MainWindow : Window
         switch(tag)
         {
             case "num_0":
-                EvalNumber(0);
+                _calc.EvalNumber(0);
                 break; 
             case "num_1":
-                EvalNumber(1);
+                _calc.EvalNumber(1);
                 break; 
             case "num_2":
-                EvalNumber(2);
+                _calc.EvalNumber(2);
                 break; 
             case "num_3":
-                EvalNumber(3);
+                _calc.EvalNumber(3);
                 break; 
             case "num_4":
-                EvalNumber(4);
+                _calc.EvalNumber(4);
                 break; 
             case "num_5":
-                EvalNumber(5);
+                _calc.EvalNumber(5);
                 break; 
             case "num_6":
-                EvalNumber(6);
+                _calc.EvalNumber(6);
                 break; 
             case "num_7":
-                EvalNumber(7);
+                _calc.EvalNumber(7);
                 break; 
             case "num_8":
-                EvalNumber(8);
+                _calc.EvalNumber(8);
                 break; 
             case "num_9":
-                EvalNumber(9);
+                _calc.EvalNumber(9);
                 break; 
             case "op_+":
-                SwitchOperator(CALCULATION_OPERATOR.ADD);
+                _calc.SwitchOperator(CALCULATION_OPERATOR.ADD);
                 break; 
             case "op_-":
-                SwitchOperator(CALCULATION_OPERATOR.REMOVE);
+                _calc.SwitchOperator(CALCULATION_OPERATOR.REMOVE);
                 break; 
             case "op_*":
-                SwitchOperator(CALCULATION_OPERATOR.MULTIPLY);
+                _calc.SwitchOperator(CALCULATION_OPERATOR.MULTIPLY);
                 break; 
             case "op_%":
-                SwitchOperator(CALCULATION_OPERATOR.DIVIDE);
+                _calc.SwitchOperator(CALCULATION_OPERATOR.DIVIDE);
                 break; 
             case "op_=":
-                PerformCalculation();
+                _calc.PerformCalculation();
                 break; 
         }
     }
 
-    private void EvalNumber(float number)
+
+}
+
+public class Calculator
+{
+    private float _mem0 = 0;
+    private float _mem1 = 0;
+    private MEMINDEX _memPtr = MEMINDEX.MEM1; // 0 is mem0, 1 is mem1
+    private bool _inputClosedSwitch;
+    private CALCULATION_OPERATOR _switchedOperator = CALCULATION_OPERATOR.EMPTY;
+    private string _monitorStr;
+    private string _exprStr;
+
+    internal Calculator()
+    {
+        LogInit();
+    }
+
+    public void EvalNumber(float number)
     {
         float operatedNum = GetFromMemory();
         if(_inputClosedSwitch)
@@ -108,7 +119,7 @@ public partial class MainWindow : Window
         Log("INPUT");
     }
 
-    private void SwitchOperator(CALCULATION_OPERATOR op)
+    public void SwitchOperator(CALCULATION_OPERATOR op)
     {
         _switchedOperator = op;
         SetPointerTo(MEMINDEX.MEM0);
@@ -118,7 +129,7 @@ public partial class MainWindow : Window
     }
 
 
-    private void PerformCalculation()
+    public void PerformCalculation()
     {
 
         SetPointerTo(MEMINDEX.MEM1);
@@ -227,6 +238,7 @@ public partial class MainWindow : Window
                     header, _switchedOperator, _mem0, _mem1, _memPtr, _exprStr, _monitorStr);
     }
 }
+
 
 public enum  CALCULATION_OPERATOR
 {

@@ -8,6 +8,8 @@ Restrictions:
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace calkin;
 
@@ -16,11 +18,15 @@ namespace calkin;
 /// </summary>
 public partial class MainWindow : Window
 {
+    private CalculatorDataContext _calcContext;
     private Calculator _calc;
     public MainWindow()
     {
         InitializeComponent();
-        _calc = new Calculator();
+        _calcContext = new CalculatorDataContext();
+        _calc = new Calculator(_calcContext);
+        labelExpression.DataContext = _calcContext;
+        labelMonitor.DataContext = _calcContext;
     } 
 
     private void ButtonPressed(object sender, RoutedEventArgs e)
@@ -81,6 +87,37 @@ public partial class MainWindow : Window
 
 }
 
+public class CalculatorDataContext : INotifyPropertyChanged
+{
+    private string _monitorStr;
+    private string _exprStr;
+    
+    public string MonitorString 
+    { 
+        get => _monitorStr; 
+        set
+        {
+            _monitorStr = value;
+            OnPropertyChanged("MonitorString");
+        }
+    }
+    public string ExpressionString 
+    { 
+        get => _exprStr; 
+        set
+        {
+            _exprStr = value;
+            OnPropertyChanged("ExpressionString");
+        }
+    } 
+    public event PropertyChangedEventHandler PropertyChanged;
+    public void OnPropertyChanged([CallerMemberName]string prop = "")
+    {
+        if (PropertyChanged != null)
+            PropertyChanged(this, new PropertyChangedEventArgs(prop));
+    }
+}
+
 public class Calculator
 {
     private float _mem0 = 0;
@@ -88,11 +125,13 @@ public class Calculator
     private MEMINDEX _memPtr = MEMINDEX.MEM1; // 0 is mem0, 1 is mem1
     private bool _inputClosedSwitch;
     private CALCULATION_OPERATOR _switchedOperator = CALCULATION_OPERATOR.EMPTY;
-    private string _monitorStr;
-    private string _exprStr;
 
-    internal Calculator()
+    private CalculatorDataContext _contextDependency;
+
+    internal Calculator(CalculatorDataContext contextDependency)
     {
+        _contextDependency = contextDependency;
+
         LogInit();
     }
 
@@ -149,6 +188,7 @@ public class Calculator
                 _mem1 /= _mem0;
                 break;
             case CALCULATION_OPERATOR.EMPTY:
+                _inputClosedSwitch = true;
                 break;
             default:
                 break;
@@ -162,16 +202,20 @@ public class Calculator
     
     private void UpdateExprStringEmpty()
     {
-        _exprStr = String.Empty;
+        _contextDependency.ExpressionString = String.Empty;
     }
     private void UpdateExprString(string op1, string op0, bool isFinal)
     {
         string calculatorExpr = isFinal ? "=" : " ";
-        _exprStr = op1 + GetOpString() + op0.ToString() + calculatorExpr;
+        if(_switchedOperator == CALCULATION_OPERATOR.EMPTY)
+        {
+            op0 = "";
+        }
+        _contextDependency.ExpressionString = op1 + GetOpString() + op0.ToString() + calculatorExpr;
     }
     private void UpdateMonitorString(string value)
     {
-        _monitorStr = value;
+        _contextDependency.MonitorString = value;
     }
 
     private string GetOpString()
@@ -235,7 +279,9 @@ public class Calculator
     private void Log(string header)
     {
         Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", 
-                    header, _switchedOperator, _mem0, _mem1, _memPtr, _exprStr, _monitorStr);
+                    header, _switchedOperator, _mem0, _mem1, _memPtr, 
+                    _contextDependency.ExpressionString, 
+                    _contextDependency.MonitorString);
     }
 }
 

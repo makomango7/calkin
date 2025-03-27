@@ -15,13 +15,22 @@
         </Grid.Resources>
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="0.05*"/>
             <RowDefinition Height="0.1*"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Label Grid.Row="0" FontSize="45" FontFamily="Courier New" Content="0123456789"/>
+        <Label x:Name="labelExpression" Grid.Row="0" 
+            FontSize="25" 
+            FontFamily="Courier New"
+            Content="{Binding ExpressionString}"/>
 
-        <Grid Grid.Row="1" Button.Click="ButtonPressed" Tag="x"> 
+        <Label x:Name="labelMonitor" Grid.Row="1" 
+            FontSize="45" 
+            FontFamily="Arial" 
+            Content="{Binding MonitorString}"/>
+
+        <Grid Grid.Row="2" Button.Click="ButtonPressed" Tag="x"> 
             <Grid.RowDefinitions>
                 <RowDefinition Height="75"/>
                 <RowDefinition Height="75"/>

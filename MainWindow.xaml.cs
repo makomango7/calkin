@@ -113,9 +113,7 @@ public partial class MainWindow : Window
     private void PerformCalculation()
     {
 
-        Log("CALC");
         SetPointerTo(MEMINDEX.MEM1);
-
         switch(_switchedOperator)
         {
             case CALCULATION_OPERATOR.ADD:

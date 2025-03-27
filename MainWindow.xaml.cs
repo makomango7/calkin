@@ -80,6 +80,9 @@ public partial class MainWindow : Window
                 break; 
             case "op_=":
                 _calc.PerformCalculation();
+                break;
+            case "op_C":
+                _calc.Clear();
                 break; 
         }
     }
@@ -120,28 +123,28 @@ public class CalculatorDataContext : INotifyPropertyChanged
 
 public class Calculator
 {
-    private float _mem0 = 0;
-    private float _mem1 = 0;
-    private MEMINDEX _memPtr = MEMINDEX.MEM1; // 0 is mem0, 1 is mem1
-    private bool _inputClosedSwitch;
-    private CALCULATION_OPERATOR _switchedOperator = CALCULATION_OPERATOR.EMPTY;
+    private float _mem0;
+    private float _mem1;
+    private MEMINDEX _memPtr;
+    private bool _freshInput;
+    private CALCULATION_OPERATOR _switchedOperator;
 
     private CalculatorDataContext _contextDependency;
 
     internal Calculator(CalculatorDataContext contextDependency)
     {
         _contextDependency = contextDependency;
-
+        Clear();
         LogInit();
     }
 
     public void EvalNumber(float number)
     {
         float operatedNum = GetFromMemory();
-        if(_inputClosedSwitch)
+        if(_freshInput)
         {
             operatedNum = number;
-            _inputClosedSwitch = false;
+            _freshInput = false;
         }
         else
         {
@@ -162,7 +165,7 @@ public class Calculator
     {
         _switchedOperator = op;
         SetPointerTo(MEMINDEX.MEM0);
-        _inputClosedSwitch = true;
+        _freshInput = true;
         UpdateExprString(_mem1.ToString(), String.Empty, false);
         Log("SWITCH");
     }
@@ -188,21 +191,36 @@ public class Calculator
                 _mem1 /= _mem0;
                 break;
             case CALCULATION_OPERATOR.EMPTY:
-                _inputClosedSwitch = true;
+                _freshInput = true;
                 break;
             default:
                 break;
         }
-        _inputClosedSwitch = true;
+        _freshInput = true;
         UpdateMonitorString(_mem1.ToString());
         UpdateExprString(tmp.ToString(), _mem0.ToString(), true);
         Log("CALC");
 
     }
+
+    public void Clear()
+    {
+        _mem0 = 0;
+        _mem1 = 0;
+        _memPtr = MEMINDEX.MEM1;
+        _freshInput = true;
+        _switchedOperator = CALCULATION_OPERATOR.EMPTY;
+        UpdateExprStringEmpty();
+        UpdateMonitorStringEmpty();
+    }
     
     private void UpdateExprStringEmpty()
     {
         _contextDependency.ExpressionString = String.Empty;
+    }
+    private void UpdateMonitorStringEmpty()
+    {
+        _contextDependency.MonitorString = "0";
     }
     private void UpdateExprString(string op1, string op0, bool isFinal)
     {

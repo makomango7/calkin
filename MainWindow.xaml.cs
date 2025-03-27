@@ -75,7 +75,7 @@ public partial class MainWindow : Window
             case "op_*":
                 _calc.SwitchOperator(CALCULATION_OPERATOR.MULTIPLY);
                 break; 
-            case "op_%":
+            case "op_/":
                 _calc.SwitchOperator(CALCULATION_OPERATOR.DIVIDE);
                 break; 
             case "op_=":

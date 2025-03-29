@@ -5,32 +5,56 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:calkin"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="400"
-        WindowStartupLocation="CenterScreen">
-    <Grid>
+        Title="MainWindow" Height="520" Width="350"
+        MinHeight="520"
+        MinWidth="350"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <Window.Resources>
+        <Style x:Key="commonBackground">
+            <Setter Property="Control.Background" Value="LemonChiffon"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Style="{StaticResource commonBackground}">
+
         <Grid.Resources>
             <Style x:Key="singleButton">
                 <Setter Property="Button.Margin" Value="3"/>
+                <Setter Property="Button.Background" Value="NavajoWhite"/>
             </Style>
         </Grid.Resources>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.05*"/>
-            <RowDefinition Height="0.1*"/>
+            <RowDefinition Height="0.05*" MinHeight="35"/>
+            <RowDefinition Height="0.1*" MinHeight="60"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
+    
+        <Border Background="NavajoWhite" Grid.Row="0"
+            BorderThickness="1">
+            <Label x:Name="labelExpression"
+                FontSize="25"
+                FontFamily="Courier New"
+                Content="{Binding ExpressionString}"
+                Padding="5"/>
+        </Border>
+        
+        <Border Background="LemonChiffon" Grid.Row="1"
+            BorderThickness="3"
+            BorderBrush="Black"
+            CornerRadius="14">
+            <Label x:Name="labelMonitor"
+                FontSize="45"
+                FontFamily="Arial"
+                Margin="3,0"
+                Foreground="Crimson"
+                Content="{Binding MonitorString}"/>
+        </Border>
 
-        <Label x:Name="labelExpression" Grid.Row="0" 
-            FontSize="25" 
-            FontFamily="Courier New"
-            Content="{Binding ExpressionString}"/>
-
-        <Label x:Name="labelMonitor" Grid.Row="1" 
-            FontSize="45" 
-            FontFamily="Arial" 
-            Content="{Binding MonitorString}"/>
-
-        <Grid Grid.Row="2" Button.Click="ButtonPressed" Tag="x"> 
+        <Grid Grid.Row="2" Button.Click="ButtonPressed" Tag="x"
+            MinHeight="400"> 
             <Grid.RowDefinitions>
                 <RowDefinition Height="75"/>
                 <RowDefinition Height="75"/>
